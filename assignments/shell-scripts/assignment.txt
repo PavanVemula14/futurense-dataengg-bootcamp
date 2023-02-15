@@ -1,0 +1,14 @@
+[ -d "./assignments" ] && rm -r assignments
+echo "ASSIGNMENT 1"
+mkdir assignments
+cd assignments
+touch cities.txt
+echo "Enter Cities Names and press CTRL+d to exit :"
+cat > cities.txt
+echo "you have Entered following Cities :"
+cat cities.txt
+echo "Getting cities with 'new' in its name :"
+cat cities.txt | grep -i new
+echo "Replacing 'new' to 'old' and saving in old_cities.txt"
+cat cities.txt | grep -i new | sed 's/new/old/I' > old_cities.txt
+echo "Done ...!"
