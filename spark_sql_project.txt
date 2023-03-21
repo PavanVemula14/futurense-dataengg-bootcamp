@@ -1,0 +1,205 @@
+rdd=sc.textFile("/mnt/c/Users/pavan/Downloads/sharemarket.csv")
+
+
+rdd.take(4)
+
+
+rdd1=rdd.map(lambda x:x.split(","))
+
+
+rdd1.take(5)
+
+
+df=spark.createDataFrame(rdd1,schema=['MARKET','SERIES','SYMBOL','SECURITY','PREV_CL_PR','OPEN_PRICE','HIGH_PRICE','LOW_PRICE','CLOSE_PRICE','NET_TRDVAL','NET_TRDQTY','CORP_IND','TRADES','HI_52_WK','LO_52_WK'])
+
+df.show()
+
+df.createOrReplaceTempView('sharemarket')
+
+
+>>> df=spark.sql('select count(series),series from sharemarket group by series')
+>>> df.show()
++-------------+------+
+|count(series)|series|
++-------------+------+
+|            8|    NA|
+|            3|    N3|
+|            4|    NC|
+|            4|    N7|
+|            8|    N8|
+|           10|    N2|
+|            8|    N5|
+|           11|    N4|
+|           14|    N6|
+|            5|    N1|
+|            4|    N9|
+|            3|    NB|
+|            1|    YH|
+|            1|    NS|
+|            4|    NL|
+|            2|    NK|
+|            1|    Z4|
+|            4|    NJ|
+|            1|    NX|
+|            1|    YS|
++-------------+------+
+only showing top 20 rows
+
+>>> df1=spark.sql('select series,count(series) as seriescount from sharemarket group by series')
+>>> df1.show()
++------+-----------+
+|series|seriescount|
++------+-----------+
+|    NA|          8|
+|    N3|          3|
+|    NC|          4|
+|    N7|          4|
+|    N8|          8|
+|    N2|         10|
+|    N5|          8|
+|    N4|         11|
+|    N6|         14|
+|    N1|          5|
+|    N9|          4|
+|    NB|          3|
+|    YH|          1|
+|    NS|          1|
+|    NL|          4|
+|    NK|          2|
+|    Z4|          1|
+|    NJ|          4|
+|    NX|          1|
+|    YS|          1|
++------+-----------+
+only showing top 20 rows
+
+>>> df1=spark.sql('select count(series) as seriescount from sharemarket')
+>>> df1=spark.sql('select series,count(series) as seriescount from sharemarket group by series')
+>>> df2=spark.sql('select count(series) as seriescount from sharemarket')
+>>> df2.show()
++-----------+
+|seriescount|
++-----------+
+|        155|
++-----------+
+
+>>> df3=spark.sql('select series,sum(high_price) high_price,sum(low_price) low_price,sum(open_price) open_price,sum(close_price) close_price from sharemarket group by series')
+>>> df3.show()
++------+------------------+------------------+------------------+-----------------+
+|series|        high_price|         low_price|        open_price|      close_price|
++------+------------------+------------------+------------------+-----------------+
+|    NA|20098.340000000004|           19723.0|           19748.0|         20059.57|
+|    N3|2088.6000000000004|            2085.9|           2086.24|          2087.38|
+|    NC|           14391.7|           14318.5|          14319.21|          14382.9|
+|    N7|           3290.55|           3232.41|           3232.41|          3290.53|
+|    N8|           8175.86|           8127.61|           8148.98|8130.780000000001|
+|    N2|           10528.4|10491.460000000001|          10518.07|         10510.92|
+|    N5|            8850.5|           8690.01|           8720.56|           8831.0|
+|    N4|11970.689999999999|          11916.05|11936.259999999998|         11927.66|
+|    N6|          26432.09|26300.449999999997|           26406.1|         26325.17|
+|    N1|            5415.0| 5398.639999999999|            5407.1|          5409.98|
+|    N9|            8108.0|            8092.5|            8092.5|           8108.0|
+|    NB|           7168.02|           7153.06|           7156.07|          7165.02|
+|    YH|           1028.01|            1021.0|            1021.0|          1028.01|
+|    NS|            1040.0|            1025.0|            1025.0|           1039.0|
+|    NL|            3431.5|            3368.1|           3430.58|           3380.9|
+|    NK|           1976.75|           1912.01|            1927.0|          1915.72|
+|    Z4|            1040.0|            1022.1|            1040.0|           1022.1|
+|    NJ|           4296.99|            4281.0|            4285.7|          4291.49|
+|    NX|            349.35|            282.11|            349.35|           295.07|
+|    YS|            1135.0|            1130.0|            1130.0|           1135.0|
++------+------------------+------------------+------------------+-----------------+
+only showing top 20 rows
+
+>>> df4=spark.sql('select security,series,max(net_trdval) net_trdval from sharemarket group by security,series')
+>>> df4.show()
++--------------------+------+----------+
+|            security|series|net_trdval|
++--------------------+------+----------+
+|  10.25% SRNCD SR IX|    N9|      5240|
+|7.34 NCD 16FEB23 ...|    N4|  118037.8|
+|7.43% TAX FREE TR...|    NH|    127200|
+|7.51 NCD 16FEB28 ...|    N5| 2456326.6|
+|7.64% TAX FREE TR...|    N2| 125060.45|
+|7.64% TAX FREETRI...|    N8|   1458346|
+|  7.74% TAX FREE NCD|    N7| 349804.56|
+|   8.00% SEC RED NCD|    N2| 677372.39|
+|8.10 NCD 05MAR22 ...|    N3|1729096.92|
+|8.12/8.32% TAX FR...|    NI|    835750|
+|8.20 NCD05MAR27 F...|    N2|      3666|
+|  8.20% TAX FREE NCD|    N4|   1383608|
+|  8.30% TAX FREE NCD|    N5|    254915|
+|8.41%S-R-NCD SERI...|    N1|    113500|
+|8.48%S-R-NCD SERI...|    N2|    128275|
+|8.49% SEC NON-CUM...|    N7|1993104.14|
+|8.50% TAX FREE TR...|    N5|    128000|
+|8.52% TAX FREE TR...|    N4|    143031|
+|  8.66% TAX FREE NCD|    N2|      4548|
+|8.75% TAX FREE TR...|    N6|9604082.74|
++--------------------+------+----------+
+only showing top 20 rows
+
+>>>
+>>> df5=spark.sql('select series,max(net_trdqty) net_trdqty from sharemarket group by series order by 2 desc limit 1')
+>>> df5.show()
++------+----------+
+|series|net_trdqty|
++------+----------+
+|    NH|       989|
++------+----------+
+
+>>> df6=spark.sql('select series,max(open_price) max_open_price,min(open_price) min_open_price from sharemarket group by series order by 2 desc limit 1')
+>>> df6.show()
++------+--------------+--------------+
+|series|max_open_price|min_open_price|
++------+--------------+--------------+
+|    NO|        998.99|       1075.01|
++------+--------------+--------------+
+
+>>> df6=spark.sql('select * from(select series,max(open_price) max_open_price,min(open_price) min_open_price from sharemarket group by series order by 2 desc)x order by 3 asc limit 1')
+>>> df6.show()
++------+--------------+--------------+
+|series|max_open_price|min_open_price|
++------+--------------+--------------+
+|    N2|         33.07|          1000|
++------+--------------+--------------+
+
+>>> df7=spark.sql('select series from sharemarket where trades>80')
+>>> df7.show()
++------+
+|series|
++------+
+|    N2|
+|    N3|
+|    N7|
++------+
+
+>>> df8=spark.sql('select series,net_trdval-net_trdqty differnce from sharemarket')
+>>> df8.show()
++------+----------+
+|series| differnce|
++------+----------+
+|    N1|3368851.44|
+|    N1|   51319.0|
+|    N1|3857601.49|
+|    N1|  113400.0|
+|    N1|  108430.0|
+|    N2| 656911.39|
+|    N2|    3663.0|
+|    N2|    4544.0|
+|    N2|  422728.5|
+|    N2| 124959.45|
+|    N2|  464220.5|
+|    N2|  128175.0|
+|    N2| 526274.91|
+|    N2|  238200.0|
+|    N2| 1104894.5|
+|    N3|4089407.99|
+|    N3|   78080.0|
+|    N3|1727457.92|
+|    N4|   2042.02|
+|    N4|   29616.6|
++------+----------+
+only showing top 20 rows
+
+>>>
